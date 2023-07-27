@@ -1,6 +1,7 @@
 package steps;
 
 import Utils.Constants;
+import Utils.DBUtils;
 import Utils.ExcelReader;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -14,6 +15,11 @@ import java.util.List;
 import java.util.Map;
 
 public class AddEmployeeSteps extends CommonMethods {
+    String fnFirstName;
+    String fnMiddleName;
+    String fnLastName;
+    String empId;
+
     @When("user clicks on PIM option")
     public void user_clicks_on_pim_option() {
         //  WebElement pimOption = driver.findElement(By.id("menu_pim_viewPimModule"));
@@ -52,9 +58,13 @@ public class AddEmployeeSteps extends CommonMethods {
     }
     @When("user enters {string} and {string} and {string}")
     public void user_enters_and_and(String firstName, String middleName, String lastName) {
+        this.fnFirstName = firstName;
+        this.fnMiddleName = middleName;
+        this.fnLastName = lastName;
         sendText(firstName, addEmployeePage.firstNameField);
         sendText(middleName, addEmployeePage.middleNameField);
         sendText(lastName, addEmployeePage.lastNameField);
+        empId = addEmployeePage.employeeIdField.getAttribute("value");
     }
 
 
@@ -153,4 +163,19 @@ public class AddEmployeeSteps extends CommonMethods {
     }
 
 
+    @Then("verify employee is stored in database")
+    public void verifyEmployeeIsStoredInDatabase() {
+        String query = "select emp_firstName,emp_middle_name,emp_lastname from hs_hr_employees where employee_id=" + empId + ";";
+        System.out.println(query);
+        List<Map<String, String>> mapList = DBUtils.fetch(query);
+        Map<String, String> firstRow = mapList.get(0);
+        String dbFirstName=firstRow.get("emp_firstName");
+        String dbMiddleName=firstRow.get("emp_middle_name");
+        String dbLastName=firstRow.get("emp_lastname");
+
+        Assert.assertEquals("FirstName from frontend does not match the firstname from database", fnFirstName,dbFirstName);
+        Assert.assertEquals("MiddleName from frontend does not match the MiddleName from database", fnMiddleName,dbMiddleName);
+        Assert.assertEquals("LastName from frontend does not match the LastName from database", fnLastName,dbLastName);
+
+    }
 }

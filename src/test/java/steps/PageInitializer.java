@@ -11,7 +11,7 @@ public class PageInitializer {
     public static AddEmployeePage addEmployeePage;
     public static EmployeeSearchPage employeeSearchPage;
 
-
+//creating the object of the pages
     public static void initializePageObjects(){
         loginPage = new LoginPage();
         dashboardPage = new DashboardPage();
